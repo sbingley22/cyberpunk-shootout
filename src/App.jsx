@@ -7,7 +7,7 @@ function App() {
 
   if (mode == 0) return (
     <>
-      <button onClick={()=>setMode(1)}>Level 1</button>
+      <button onClick={()=>setMode(1)}>Ripper Lab</button>
     </>
   )
 

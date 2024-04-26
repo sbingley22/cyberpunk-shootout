@@ -14,6 +14,9 @@ dist-ssr
 
 public/davidMartinez/dev/*
 public/mercs/dev/*
+public/drones/dev/*
+public/levels/dev/*
+public/props/dev/*
 
 # Editor directories and files
 .vscode/*

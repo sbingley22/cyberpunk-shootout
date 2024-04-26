@@ -1,36 +1,12 @@
 /* eslint-disable react/prop-types */
 
-import { useEffect, useState } from "react"
 
-
-const Merc = ({ data, target, mercAnim, shooters }) => {  
-  const image = `./mercs/${data.action}-${data.name}.gif`
-
-  const [animTimer, setAnimTimer] = useState(false)
-  const [visible, setVisible] = useState(true)
-
-  const shooterFrame = shooters.find(obj => obj.id === data.id)?.frame
-  //if (shooterFrame) console.log(shooterFrame)
-
-  useEffect(()=>{
-    if (animTimer) return
-    setAnimTimer(true)
-
-    const timeoutCallback = () => {
-      setAnimTimer(false)
-
-      if (data.action == "die") {
-        setVisible(false)
-      }
-
-      mercAnim(data.id, "aim")
-    }
-
-    const timeoutId = setTimeout(timeoutCallback, 1000)
-
-    return () => clearTimeout(timeoutId)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[data.action])
+const Drone = ({ data, target, shooting, shooters }) => {
+  const image = `./drones/drone-${data.name}.png`
+  let className = shooting ? data.id == target.current ? "enemy shake" : "enemy hover" : "enemy hover"
+  if (data.health < 1) {
+    className = "enemy crash"
+  }
   
   const setTarget = () => {
     target.current = data.id
@@ -43,10 +19,12 @@ const Merc = ({ data, target, mercAnim, shooters }) => {
     }
   }
 
+  const shooterFrame = shooters.find(obj => obj.id === data.id)?.frame
+
   return (
     <>
       <img 
-        className="enemy" 
+        className={className}
         src={image} 
         alt="" 
         style={{
@@ -54,7 +32,6 @@ const Merc = ({ data, target, mercAnim, shooters }) => {
           top: data.top,
           width: data.width+"px",
           height: data.height+"px",
-          display: visible ? "block" : "none"
         }}
         draggable={false}
         onPointerEnter={setTarget}
@@ -92,4 +69,4 @@ const Merc = ({ data, target, mercAnim, shooters }) => {
   )
 }
 
-export default Merc
+export default Drone
