@@ -41,6 +41,21 @@
   user-select: none;
 }
 
+.menu {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 40px;
+}
+
+label {
+  display: block;
+}
+
+button {
+  display: block;
+  margin: 20px auto;
+}
+
 
 @keyframes hover {
   0% {
@@ -58,6 +73,24 @@
 }
 .hover {
   animation: hover 2.5s linear infinite;
+}
+
+@keyframes hover2 {
+  0% {
+    transform: translateX(15px);
+  }
+  25% {
+    transform: translateX(-15px);
+  }
+  75% {
+    transform: translateX(15px);
+  }
+  100% {
+    transform: translateX(-15px);
+  }
+}
+.hover2 {
+  animation: hover2 2.5s linear infinite;
 }
 
 @keyframes shake {

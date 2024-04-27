@@ -33,10 +33,64 @@ const waveData = {
       drones: 5,
       mercs: 2,
     }
+  ],
+  2: [
+    {
+      wave: 0,
+      drones: 2,
+      mercs: 0,
+    },
+    {
+      wave: 1,
+      drones: 3,
+      mercs: 0,
+    },
+    {
+      wave: 2,
+      drones: 3,
+      mercs: 0,
+    },
+    {
+      wave: 3,
+      drones: 6,
+      mercs: 0,
+    },
+    {
+      wave: 4,
+      drones: 8,
+      mercs: 0,
+    }
+  ],
+  6: [
+    {
+      wave: 0,
+      drones: 2,
+      mercs: 1,
+    },
+    {
+      wave: 1,
+      drones: 3,
+      mercs: 1,
+    },
+    {
+      wave: 2,
+      drones: 3,
+      mercs: 2,
+    },
+    {
+      wave: 3,
+      drones: 3,
+      mercs: 2,
+    },
+    {
+      wave: 4,
+      drones: 5,
+      mercs: 2,
+    }
   ]
 }
 
-const Game = ({ level }) => {
+const Game = ({ level, setLevel, song, runners, setMissionScore }) => {
   const [playerAction, setPlayerAction] = useState("cover")
   const [mercs, setMercs] = useState([])
   const [drones, setDrones] = useState([])
@@ -47,11 +101,24 @@ const Game = ({ level }) => {
   const target = useRef(null)
   const [health, setHealth] = useState(100)
   const [shield, setShield] = useState(255)
+  const [score, setScore] = useState(0)
 
   const [enemyLoop, setEnemyLoop] = useState(false)
   const [shooters, setShooters] = useState([])
 
-  // Initialize level
+  const songYourHouseRef = useRef(null)
+  const resistDisorderRef = useRef(null)
+  const rebelPathRef = useRef(null)
+
+  // Start Song
+  useEffect(()=>{
+    if (song == 0) return
+    if (song == 1) songYourHouseRef.current.play()
+    else if (song == 2) resistDisorderRef.current.play()
+    else if (song == 3) rebelPathRef.current.play()
+  }, [song])
+
+  // Initialize Waves
   useEffect(()=>{
     setTimeout(()=>spawnWave(), 1000)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -75,6 +142,7 @@ const Game = ({ level }) => {
     const waves = waveData[level]
     //console.log(wave)
     //console.log(waves)
+    //console.log("Spawning")
 
     if (waves.length <= wave) {
       console.log("Level complete")
@@ -131,6 +199,9 @@ const Game = ({ level }) => {
     const timeoutCallback = () => {
       setEnemyLoop(prev => !prev)
 
+      const aimFrames = 20
+      const chanceThreshold = 0.01
+
       // Chance of shooting
       let tempShooters = [...shooters]
 
@@ -156,10 +227,10 @@ const Game = ({ level }) => {
           if (merc.health < 1) return
 
           const chance = Math.random()
-          if (chance < 0.1) {
+          if (chance < chanceThreshold) {
             tempShooters.push({
               id: merc.id,
-              frame: 4
+              frame: aimFrames
             })
           }
         }
@@ -187,10 +258,10 @@ const Game = ({ level }) => {
           if (drone.health < 1) return
 
           const chance = Math.random()
-          if (chance < 0.1) {
+          if (chance < chanceThreshold) {
             tempShooters.push({
               id: drone.id,
-              frame: 4
+              frame: aimFrames
             })
           }
         }
@@ -199,7 +270,7 @@ const Game = ({ level }) => {
       setShooters(tempShooters)
     }
 
-    const timeoutId = setTimeout(timeoutCallback, 500)
+    const timeoutId = setTimeout(timeoutCallback, 50)
 
     return () => clearTimeout(timeoutId)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -216,45 +287,65 @@ const Game = ({ level }) => {
     const timeoutCallback = () => {
       //console.log("Current target:", target.current);
 
-      let updateOccured = false
+      let tempScore = 0
+      let updateOccured = null
 
       const updatedDrones = drones.map(drone => {
         if (drone.health < 1) return drone
         if (drone.id === target.current) {
           const updatedDrone = { ...drone, health: drone.health - 40 }
-          updateOccured = true
+          updateOccured = drone.id
           return updatedDrone
         }
         return drone
       })
   
-      if (updateOccured) setDrones(updatedDrones)
-      updateOccured = false
+      if (updateOccured) {
+        setDrones(updatedDrones)
+        tempScore += 10
+        removeShooter(updateOccured)
+        console.log("Drone shot")
+      }
+      updateOccured = null
 
       const updatedMercs = mercs.map(merc => {
         if (merc.health < 1) return merc
         if (merc.id === target.current) {
           const newHealth = merc.health - 40
           const updatedMerc = { ...merc, health: newHealth, action: newHealth < 1 ? "die" : "hurt" }
-          updateOccured = true
+          updateOccured = merc.id
           return updatedMerc
         }
         return merc
       })
   
-      if (updateOccured) setMercs(updatedMercs)
+      if (updateOccured) {
+        setMercs(updatedMercs)
+        tempScore += 20
+        removeShooter(updateOccured)
+        console.log("Merc shot")
+      }
 
       setAmmo(prev => prev - 1)
+      setScore(prev=>prev+tempScore)
     }
 
-    const timeoutId = setTimeout(timeoutCallback, 500);
+    const timeoutId = setTimeout(timeoutCallback, 250);
 
     return () => clearTimeout(timeoutId);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shooting, ammo])
 
+  const removeShooter = (id) => {
+    const tempShooters = shooters.filter(item => item.id !== id)
+
+    setShooters(tempShooters)
+    console.log(shooters.length, tempShooters.length)
+  }
+
   const updatePlayerAction = (newAction) => {
     if (playerAction == "hurt") return false
+    if (playerAction == "die") return false
 
     setPlayerAction(newAction)
 
@@ -279,8 +370,9 @@ const Game = ({ level }) => {
       //console.log("game over")
       setHealth(newHealth)
       setPlayerAction("die")
+      setMissionScore(score)
       setTimeout(()=>{
-        window.location.reload()
+        setLevel(-1)
       }, 3000)
       return
     }
@@ -347,6 +439,18 @@ const Game = ({ level }) => {
       ))}
 
       <Player playerAction={playerAction} health={health} ammo={ammo} shield={shield} />
+
+      <audio ref={songYourHouseRef} loop>
+        <source src="./yourHouse.m4a" type="audio/mp4" />
+      </audio>
+
+      <audio ref={rebelPathRef} loop>
+        <source src="./rebelPath.m4a" type="audio/mp4" />
+      </audio>
+
+      <audio ref={resistDisorderRef} loop>
+        <source src="./resistDisorder.m4a" type="audio/mp4" />
+      </audio>
     </div>
   )
 }

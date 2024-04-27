@@ -73,7 +73,7 @@ const Merc = ({ data, target, mercAnim, shooters }) => {
           width: "50px",
           height: "50px",
           border: "solid 10px rgba(111,111,0,0.5)",
-          backgroundColor: shooterFrame < 2 ? "rgba(255,11,0, 0.8)" : shooterFrame < 3 ? "rgba(211,111,0, 0.6)" : "rgba(111,111,0, 0.3)",
+          backgroundColor: shooterFrame < 7 ? "rgba(255,11,0, 0.8)" : shooterFrame < 14 ? "rgba(211,111,0, 0.6)" : "rgba(111,111,0, 0.3)",
           borderRadius: 50
         }}
       /> }
