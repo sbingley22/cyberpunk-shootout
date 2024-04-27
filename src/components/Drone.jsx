@@ -20,7 +20,7 @@ const Drone = ({ data, target, shooting, shooters }) => {
     }
   }
 
-  const shooterFrame = shooters.find(obj => obj.id === data.id)?.frame
+  const shooterFrame = shooters.current.find(obj => obj.id === data.id)?.frame
 
   return (
     <>

@@ -32,6 +32,21 @@ const waveData = {
       wave: 4,
       drones: 5,
       mercs: 2,
+    },
+    {
+      wave: 5,
+      drones: 8,
+      mercs: 1,
+    },
+    {
+      wave: 6,
+      drones: 6,
+      mercs: 2,
+    },
+    {
+      wave: 7,
+      drones: 7,
+      mercs: 3,
     }
   ],
   2: [
@@ -58,6 +73,21 @@ const waveData = {
     {
       wave: 4,
       drones: 8,
+      mercs: 0,
+    },
+    {
+      wave: 5,
+      drones: 9,
+      mercs: 0,
+    },
+    {
+      wave: 6,
+      drones: 10,
+      mercs: 0,
+    },
+    {
+      wave: 7,
+      drones: 12,
       mercs: 0,
     }
   ],
@@ -86,11 +116,88 @@ const waveData = {
       wave: 4,
       drones: 5,
       mercs: 2,
+    },
+    {
+      wave: 5,
+      drones: 5,
+      mercs: 3,
+    },
+    {
+      wave: 6,
+      drones: 6,
+      mercs: 3,
+    },
+    {
+      wave: 7,
+      drones: 10,
+      mercs: 1,
+    },
+    {
+      wave: 8,
+      drones: 8,
+      mercs: 3,
+    },
+    {
+      wave: 9,
+      drones: 7,
+      mercs: 4,
+    }
+  ],
+  9: [
+    {
+      wave: 0,
+      drones: 4,
+      mercs: 2,
+    },
+    {
+      wave: 1,
+      drones: 5,
+      mercs: 1,
+    },
+    {
+      wave: 2,
+      drones: 5,
+      mercs: 2,
+    },
+    {
+      wave: 3,
+      drones: 6,
+      mercs: 2,
+    },
+    {
+      wave: 4,
+      drones: 8,
+      mercs: 2,
+    },
+    {
+      wave: 5,
+      drones: 7,
+      mercs: 3,
+    },
+    {
+      wave: 6,
+      drones: 7,
+      mercs: 3,
+    },
+    {
+      wave: 7,
+      drones: 10,
+      mercs: 1,
+    },
+    {
+      wave: 8,
+      drones: 8,
+      mercs: 3,
+    },
+    {
+      wave: 9,
+      drones: 10,
+      mercs: 4,
     }
   ]
 }
 
-const Game = ({ level, setLevel, song, runners, setMissionScore }) => {
+const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) => {
   const [playerAction, setPlayerAction] = useState("cover")
   const [mercs, setMercs] = useState([])
   const [drones, setDrones] = useState([])
@@ -101,17 +208,30 @@ const Game = ({ level, setLevel, song, runners, setMissionScore }) => {
   const target = useRef(null)
   const [health, setHealth] = useState(100)
   const [shield, setShield] = useState(255)
-  const [score, setScore] = useState(0)
+  const score = useRef(0)
+  const [showCompleteButton, setShowCompleteButton] = useState(false)
+
+  const [sandevistan, setSandevistan] = useState(0)
+  const [activatedSandevistan, setActivatedSandevistan] = useState(false)
 
   const [enemyLoop, setEnemyLoop] = useState(false)
-  const [shooters, setShooters] = useState([])
+  const shooters = useRef([])
 
   const songYourHouseRef = useRef(null)
   const resistDisorderRef = useRef(null)
   const rebelPathRef = useRef(null)
 
+  const audioGunshot = useRef(null)
+  const audioPlayerHit = useRef(null)
+  const audioEnemyHit = useRef(null)
+  const audioReload = useRef(null)
+  const audioShieldHit = useRef(null)
+  const audioKill = useRef(null)
+
   // Start Song
   useEffect(()=>{
+    audioGunshot.current.volume = 0.5
+
     if (song == 0) return
     if (song == 1) songYourHouseRef.current.play()
     else if (song == 2) resistDisorderRef.current.play()
@@ -132,7 +252,8 @@ const Game = ({ level, setLevel, song, runners, setMissionScore }) => {
     const allMercsDead = mercs.every(obj => obj.health < 1)
 
     if (allDronesDead && allMercsDead) {
-      setTimeout(()=>setWave(wave + 1), 2000)
+      setTimeout(()=>setWave(wave + 1), 1000)
+      //console.log("New wave:", wave)
     }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -145,11 +266,13 @@ const Game = ({ level, setLevel, song, runners, setMissionScore }) => {
     //console.log("Spawning")
 
     if (waves.length <= wave) {
-      console.log("Level complete")
+      //console.log("Level complete")
+      setShowCompleteButton(true)
       return
     }
 
     setShield(255)
+    setHealth(health + 10)
 
     const droneAmount = waves[wave].drones
     const mercAmount = waves[wave].mercs
@@ -175,8 +298,9 @@ const Game = ({ level, setLevel, song, runners, setMissionScore }) => {
     const tempMercs = []
     for (let index = 0; index < mercAmount; index++) {
       //const name = Math.floor(Math.random() * 3)
-      const top = Math.random() * 10 + 45
-      const left = Math.random() * 85
+      const top = Math.random() * 10 + 40
+      let left = Math.random() * 85
+      if (left < 50 && left > 30) left += 20
       const tempMerc = {
         id: uuidv4(),
         name: "m1",
@@ -194,16 +318,28 @@ const Game = ({ level, setLevel, song, runners, setMissionScore }) => {
     //console.log(tempDrones, tempMercs)
   }
 
+  // Sandevistan
+  useEffect(() => {
+    if (sandevistan < 0) setActivatedSandevistan(false)
+  }, [sandevistan])
+
   // Enemy Taking Shot
   useEffect(() => {
     const timeoutCallback = () => {
       setEnemyLoop(prev => !prev)
 
-      const aimFrames = 20
+      if (activatedSandevistan) {
+        setSandevistan(prev => prev - 12)
+      } else {
+        if (sandevistan < 1000) setSandevistan(prev => prev + 3)
+      }
+
+
+      const aimFrames = difficulty == 1 ? 30 : difficulty == 0 ? 50 : 25
       const chanceThreshold = 0.01
 
       // Chance of shooting
-      let tempShooters = [...shooters]
+      let tempShooters = [...shooters.current]
 
       mercs.forEach((merc) => {
         const isShooter = tempShooters.some(obj => obj.id === merc.id)
@@ -267,7 +403,7 @@ const Game = ({ level, setLevel, song, runners, setMissionScore }) => {
         }
       })
 
-      setShooters(tempShooters)
+      shooters.current = tempShooters
     }
 
     const timeoutId = setTimeout(timeoutCallback, 50)
@@ -281,11 +417,15 @@ const Game = ({ level, setLevel, song, runners, setMissionScore }) => {
     if (!shooting) return
     if (ammo < 1) {
       setShooting(false)
+      audioReload.current.currentTime = 0
+      audioReload.current.play()
       return
     }
 
     const timeoutCallback = () => {
       //console.log("Current target:", target.current);
+      audioGunshot.current.currentTime = 0
+      audioGunshot.current.play()
 
       let tempScore = 0
       let updateOccured = null
@@ -304,7 +444,9 @@ const Game = ({ level, setLevel, song, runners, setMissionScore }) => {
         setDrones(updatedDrones)
         tempScore += 10
         removeShooter(updateOccured)
-        console.log("Drone shot")
+        audioEnemyHit.current.currentTime = 0
+        audioEnemyHit.current.play()
+        //console.log("Drone shot")
       }
       updateOccured = null
 
@@ -323,11 +465,13 @@ const Game = ({ level, setLevel, song, runners, setMissionScore }) => {
         setMercs(updatedMercs)
         tempScore += 20
         removeShooter(updateOccured)
-        console.log("Merc shot")
+        audioEnemyHit.current.currentTime = 0
+        audioEnemyHit.current.play()
+        //console.log("Merc shot")
       }
 
       setAmmo(prev => prev - 1)
-      setScore(prev=>prev+tempScore)
+      score.current += tempScore
     }
 
     const timeoutId = setTimeout(timeoutCallback, 250);
@@ -337,10 +481,10 @@ const Game = ({ level, setLevel, song, runners, setMissionScore }) => {
   }, [shooting, ammo])
 
   const removeShooter = (id) => {
-    const tempShooters = shooters.filter(item => item.id !== id)
+    const tempShooters = shooters.current.filter(item => item.id !== id)
 
-    setShooters(tempShooters)
-    console.log(shooters.length, tempShooters.length)
+    shooters.current = tempShooters
+    //console.log(shooters.length, tempShooters.length)
   }
 
   const updatePlayerAction = (newAction) => {
@@ -357,20 +501,30 @@ const Game = ({ level, setLevel, song, runners, setMissionScore }) => {
     if (playerAction == "die") return
 
     if (playerAction == "cover" && shield > 0) {
-      setShield(prev => prev - 50)
+      const dmg = difficulty == 1 ? 50 : difficulty == 0 ? 25 : 70
+      setShield(prev => prev - dmg)
+      score.current -= 10
+      audioShieldHit.current.currentTime = 0
+      audioShieldHit.current.play()
       return      
     }
+    
+    if (activatedSandevistan) return
 
     // Hit player
     setShooting(false)
-    let newHealth = health - 30
+    score.current -= 40
+    audioPlayerHit.current.currentTime = 0
+    audioPlayerHit.current.play()
+
+    const dmg = difficulty == 1 ? 25 : difficulty == 0 ? 10 : 35
+    let newHealth = health - dmg
     if (newHealth < 0) {
-      newHealth = 0
       // player dead
-      //console.log("game over")
+      newHealth = 0
       setHealth(newHealth)
       setPlayerAction("die")
-      setMissionScore(score)
+      setMissionScore(score.current)
       setTimeout(()=>{
         setLevel(-1)
       }, 3000)
@@ -380,7 +534,7 @@ const Game = ({ level, setLevel, song, runners, setMissionScore }) => {
     setPlayerAction("hurt")
     setTimeout(()=>{
       setPlayerAction("cover")
-    }, 800)
+    }, 600)
   }
 
   const mercAnim = (id, anim) => {
@@ -403,6 +557,11 @@ const Game = ({ level, setLevel, song, runners, setMissionScore }) => {
     updatePlayerAction("cover")
     setShooting(false)
     setTimeout(setAmmo(10), 500)
+  }
+
+  const levelComplete = () => {
+    setMissionScore(score.current)
+    setLevel(-2)
   }
 
   const background = `url(./levels/level-${level}-background.png)`
@@ -438,19 +597,59 @@ const Game = ({ level, setLevel, song, runners, setMissionScore }) => {
         />
       ))}
 
-      <Player playerAction={playerAction} health={health} ammo={ammo} shield={shield} />
+      <Player 
+        playerAction={playerAction} 
+        health={health} 
+        ammo={ammo} 
+        shield={shield}
+        sandevistan={sandevistan}
+        activatedSandevistan={activatedSandevistan}
+        setActivatedSandevistan={setActivatedSandevistan} 
+      />
+
+      { showCompleteButton && <button
+        style={{
+          position: "absolute",
+          top: "25%",
+          left: "45%",
+          fontSize: "larger",
+          border: "solid 4px purple"
+        }}
+        onClick={levelComplete}
+      >Return to Base</button>}
 
       <audio ref={songYourHouseRef} loop>
-        <source src="./yourHouse.m4a" type="audio/mp4" />
+        <source src="./audio/yourHouse.m4a" type="audio/mp4" />
       </audio>
-
       <audio ref={rebelPathRef} loop>
-        <source src="./rebelPath.m4a" type="audio/mp4" />
+        <source src="./audio/rebelPath.m4a" type="audio/mp4" />
       </audio>
-
       <audio ref={resistDisorderRef} loop>
-        <source src="./resistDisorder.m4a" type="audio/mp4" />
+        <source src="./audio/resistDisorder.m4a" type="audio/mp4" />
       </audio>
+      
+      <audio ref={audioGunshot} >
+        <source src="./audio/gunshot.wav" type="audio/wav" />
+      </audio>
+      <audio ref={audioKill} >
+        <source src="./audio/kill.m4a" type="audio/wav" />
+      </audio>
+      <audio ref={audioPlayerHit} >
+        <source src="./audio/playerHit.wav" type="audio/wav" />
+      </audio>
+      <audio ref={audioEnemyHit} >
+        <source src="./audio/enemyHit.wav" type="audio/wav" />
+      </audio>
+      <audio ref={audioReload} >
+        <source src="./audio/reload.wav" type="audio/wav" />
+      </audio>
+      <audio ref={audioShieldHit} >
+        <source src="./audio/shieldHit.wav" type="audio/wav" />
+      </audio>
+      {/* <audio ref={audio} >
+        <source src="./audio/.wav" type="audio/wav" />
+      </audio> */}
+
     </div>
   )
 }

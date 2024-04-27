@@ -9,18 +9,20 @@ const Merc = ({ data, target, mercAnim, shooters }) => {
   const [animTimer, setAnimTimer] = useState(false)
   const [visible, setVisible] = useState(true)
 
-  const shooterFrame = shooters.find(obj => obj.id === data.id)?.frame
+  const shooterFrame = shooters.current.find(obj => obj.id === data.id)?.frame
   //if (shooterFrame) console.log(shooterFrame)
 
   useEffect(()=>{
     if (animTimer) return
-    setAnimTimer(true)
+    //setAnimTimer(true)
 
     const timeoutCallback = () => {
       setAnimTimer(false)
 
+      //console.log(data.action)
       if (data.action == "die") {
         setVisible(false)
+        console.log("setting visible")
       }
 
       mercAnim(data.id, "aim")
@@ -30,7 +32,7 @@ const Merc = ({ data, target, mercAnim, shooters }) => {
 
     return () => clearTimeout(timeoutId)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[data.action])
+  },[data])
   
   const setTarget = () => {
     target.current = data.id
@@ -54,7 +56,8 @@ const Merc = ({ data, target, mercAnim, shooters }) => {
           top: data.top,
           width: data.width+"px",
           height: data.height+"px",
-          display: visible ? "block" : "none"
+          display: visible ? "block" : "none",
+          pointerEvents: visible ? "auto" : "none"
         }}
         draggable={false}
         onPointerEnter={setTarget}

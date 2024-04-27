@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 
-const Player = ({ playerAction, health, ammo, shield }) => {  
+const Player = ({ playerAction, health, ammo, shield, sandevistan, setActivatedSandevistan, activatedSandevistan }) => {  
   const image = `./davidMartinez/${playerAction}.gif`
   const left = 25
   const bottom = 0
@@ -25,7 +25,9 @@ const Player = ({ playerAction, health, ammo, shield }) => {
         alt="" 
         style={{
           left: left+"%", 
-          bottom:bottom+"%"
+          bottom:bottom+"%",
+          backgroundColor: activatedSandevistan ? "rgba(0,255,0,0.2)" : "rgba(0,255,0,0)",
+          borderRadius: 100
         }}
         draggable={false}
       />
@@ -38,6 +40,21 @@ const Player = ({ playerAction, health, ammo, shield }) => {
           fontSize: "larger"
         }}
       >
+        { sandevistan >= 1000 && 
+          <button 
+            onClick={()=>setActivatedSandevistan(true)}
+            style={{ backgroundColor: "green" }}
+          >
+              Activate!
+            </button>
+          }
+        <p
+        style={{
+          color: sandevistan < 500 ? "red" : sandevistan < 750 ? "yellow" : "white"
+        }}
+        >
+          Sandevistan: {sandevistan}
+        </p>
         <p
         style={{
           color: ammo < 2 ? "red" : ammo < 4 ? "yellow" : "white"
