@@ -837,6 +837,20 @@ const Game = ({ isMobile, level, setLevel, song, runners, setMissionScore, diffi
     inputRef.current.value = ""
   }
 
+  const lucyPeek = () => {
+    const actionAccepted = updateLucyAction("shoot")
+    if (actionAccepted) setLucyShooting(true)
+
+    typeTest()
+    console.log("Lucy Peek", actionAccepted)
+  }
+
+  const lucyCover = () => {
+    setLucyShooting(false)
+    updateLucyAction("cover")
+    inputRef.current.value = ""
+  }
+
   // Keyboard events
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -937,7 +951,17 @@ const Game = ({ isMobile, level, setLevel, song, runners, setMissionScore, diffi
       /> }
 
       {runners != 0 && 
-        <input className="lucyInput" ref={inputRef} type="text" />
+        <div className="lucyInput">
+          <button
+            onPointerDown={lucyPeek}
+            onPointerUp={lucyCover}
+            style={{
+              padding: "10px 70px",
+              marginBottom: 0
+            }}
+          >Peek</button>
+          <input ref={inputRef} type="text" />
+        </div>
       }
 
       { showCompleteButton && <button
