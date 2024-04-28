@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 
 
-const Merc = ({ data, target, lucyShooting, mercAnim, shooters, runners }) => {  
+const Merc = ({ isMobile, data, target, lucyShooting, mercAnim, shooters, runners }) => {  
   const image = `./mercs/${data.action}-${data.name}.gif`
 
   const [animTimer, setAnimTimer] = useState(false)

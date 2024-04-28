@@ -340,7 +340,7 @@ const waveData = {
   ]
 }
 
-const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty, wordList }) => {
+const Game = ({ isMobile, level, setLevel, song, runners, setMissionScore, difficulty, wordList }) => {
   const [playerAction, setPlayerAction] = useState("cover")
   const [lucyAction, setLucyAction] = useState("cover")
   const [mercs, setMercs] = useState([])
@@ -443,7 +443,8 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty, wor
     for (let index = 0; index < droneAmount; index++) {
       const name = Math.floor(Math.random() * 3)
       const top = Math.random() * 30
-      const left = Math.random() * 80 + 5
+      let left = Math.random() * 80 + 5
+      if (isMobile) left *= 0.7
       const word = Math.floor(Math.random() * words.length)
       //console.log(words[word])
 
@@ -466,6 +467,7 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty, wor
       //const name = Math.floor(Math.random() * 3)
       const top = Math.random() * 10 + 40
       let left = Math.random() * 85
+      if (isMobile) left *= 0.7
       if (left < 50 && left > 30) left += 20
       const word = Math.floor(Math.random() * words.length)
       const tempMerc = {
@@ -877,9 +879,12 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty, wor
 
   return (
     <div 
-      className="arena"
+      className="arena mobile-no-scroll"
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
+      onTouchStart={handlePointerDown}
+      onTouchEnd={handlePointerUp}
+      onContextMenu={(e)=>e.preventDefault()}
     >
       <div 
         className="background" 
@@ -911,6 +916,7 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty, wor
       ))}
 
       {runners != 1 && <Player 
+        isMobile={isMobile}
         playerAction={playerAction} 
         health={health} 
         ammo={ammo} 
@@ -921,6 +927,7 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty, wor
       /> }
 
       {runners != 0 && <Lucy 
+        isMobile={isMobile}
         lucyAction={lucyAction} 
         health={lucyHealth}
         shield={lucyShield}

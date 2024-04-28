@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 
 
-const Drone = ({ data, target, shooting, lucyShooting, shooters, runners }) => {
+const Drone = ({ isMobile, data, target, shooting, lucyShooting, shooters, runners }) => {
   const image = `./drones/drone-${data.name}.png`
   let className = shooting ? data.id == target.current ? "enemy shake" : "enemy hover" : "enemy hover"
   if (data.name >= 2) className += " hover2"

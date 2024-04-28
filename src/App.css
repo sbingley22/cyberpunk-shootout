@@ -7,6 +7,10 @@
   user-select: none;
 }
 
+.mobile-no-scroll {
+  overflow: hidden;
+}
+
 .arena {
   width: 100vw;
   height: 100%;
@@ -21,6 +25,7 @@
   background-image: none;
   background-size: auto 100%;
   background-repeat: no-repeat;
+  background-position: center;
   user-select: none;
 }
 
@@ -50,6 +55,18 @@
   .menu {
     grid-template-columns: 1fr;
     grid-template-rows: 3fr;
+  }
+
+  label {
+    font-size: x-small;
+    margin: 0;
+    padding: 0;
+  }
+
+  button {
+    margin: 0;
+    padding: 0;
+    font-size: x-small;
   }
 }
 

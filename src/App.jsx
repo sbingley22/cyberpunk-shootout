@@ -1,8 +1,26 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import Game from './components/Game'
 
 function App() {
+  // Mobile device?
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 768px)')
+    setIsMobile(mediaQuery.matches)
+
+    const handleResize = () => {
+      setIsMobile(mediaQuery.matches)
+    }
+
+    mediaQuery.addEventListener('change', handleResize);
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleResize);
+    }
+  }, [])
+
+
   const [level, setLevel] = useState(0)
   const [song, setSong] = useState(0)
   const [runners, setRunners] = useState(0)
@@ -36,6 +54,7 @@ function App() {
           height: "100vh",
           backgroundSize: "auto 100%",
           backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
           zIndex: -1,
           userSelect: "none"
         }}
@@ -98,6 +117,7 @@ function App() {
           height: "100vh",
           backgroundSize: "auto 100%",
           backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
           zIndex: -1,
           userSelect: "none"
         }}
@@ -195,6 +215,7 @@ function App() {
   return (
     <>
       <Game 
+        isMobile={isMobile}
         level={level} 
         setLevel={setLevel}
         song={song} 
