@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 
-const Player = ({ playerAction, health, ammo, shield, sandevistan, setActivatedSandevistan, activatedSandevistan }) => {  
-  const image = `./davidMartinez/${playerAction}.gif`
-  const left = 20
+const Lucy = ({ lucyAction, health, shield, hack, setActivatedHack, activatedHack }) => {
+  const image = `./lucyKushinada/${lucyAction}.gif`
+  const left = 50
   const bottom = 0
 
   return (
@@ -10,7 +10,7 @@ const Player = ({ playerAction, health, ammo, shield, sandevistan, setActivatedS
       <div
         style={{
           position: "absolute",
-          left: left+6+"%", 
+          left: left+10+"%", 
           bottom:bottom+10+"%",
           width: "250px",
           height: "250px",
@@ -26,7 +26,7 @@ const Player = ({ playerAction, health, ammo, shield, sandevistan, setActivatedS
         style={{
           left: left+"%", 
           bottom:bottom+"%",
-          backgroundColor: activatedSandevistan ? "rgba(0,255,0,0.2)" : "rgba(0,255,0,0)",
+          backgroundColor: activatedHack ? "rgba(0,255,0,0.2)" : "rgba(0,255,0,0)",
           borderRadius: 100
         }}
         draggable={false}
@@ -35,14 +35,14 @@ const Player = ({ playerAction, health, ammo, shield, sandevistan, setActivatedS
       <div
         style={{
           position: "absolute",
-          left: left-5+"%", 
+          left: left+5+"%", 
           bottom: bottom+"%",
           fontSize: "larger"
         }}
       >
-        { sandevistan >= 1000 && 
+        { hack >= 1000 && 
           <button 
-            onClick={()=>setActivatedSandevistan(true)}
+            onClick={()=>setActivatedHack(true)}
             style={{ backgroundColor: "green" }}
           >
               Activate!
@@ -50,17 +50,10 @@ const Player = ({ playerAction, health, ammo, shield, sandevistan, setActivatedS
           }
         <p
         style={{
-          color: sandevistan < 500 ? "red" : sandevistan < 750 ? "yellow" : "white"
+          color: hack < 500 ? "red" : hack < 750 ? "yellow" : "white"
         }}
         >
-          Sandevistan: {sandevistan}
-        </p>
-        <p
-        style={{
-          color: ammo < 2 ? "red" : ammo < 4 ? "yellow" : "white"
-        }}
-        >
-          Ammo: {ammo}
+          Hacking: {hack}
         </p>
         <p
         style={{
@@ -77,23 +70,8 @@ const Player = ({ playerAction, health, ammo, shield, sandevistan, setActivatedS
           Health: {health}
         </p>
       </div>
-
-      <h1
-        style={{
-          position: "absolute",
-          left: left+15+"%", 
-          bottom: bottom+45+"%",
-          color: "red",
-          backgroundColor: "#111111",
-          border: "solid 5px black",
-          borderRadius: 25,
-          padding: ammo < 1 ? "25px" : "0"
-        }}
-      >
-        {ammo < 1 && "Reload!!!"}
-      </h1>
     </>
   )
 }
 
-export default Player
+export default Lucy

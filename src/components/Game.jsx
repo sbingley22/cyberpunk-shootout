@@ -3,8 +3,151 @@
 import { useEffect, useRef, useState } from "react"
 import Player from "./Player"
 import Merc from "./Merc"
-import { v4 as uuidv4 } from 'uuid';
-import Drone from "./Drone";
+import { v4 as uuidv4 } from 'uuid'
+import Drone from "./Drone"
+import Lucy from "./Lucy"
+
+const wordsCyber = [
+  "augment",
+  "mech",
+  "tech",
+  "choom",
+  "neurojack",
+  "cyberspace",
+  "hacktivist",
+  "cyberware",
+  "cyberdeck",
+  "nanotech",
+  "enhancement",
+  "cybernetic",
+  "virtuality",
+  "holo-sim",
+  "neon",
+  "neuro-enhancer",
+  "cyberdrome",
+  "plas-fiber",
+  "enhanced reality",
+  "neuro-link",
+  "synthskin",
+  "gridlock",
+  "neonopolis",
+  "biomod",
+  "cyber-sleuth",
+  "simstim",
+  "dystopia",
+  "techno-organic",
+  "replicant",
+  "telematics",
+  "braindance",
+  "transhuman",
+  "cybernetics",
+  "digi-gang",
+  "mech-suit",
+  "synthwave",
+  "neuro-gang",
+  "chrome",
+  "holo-lens",
+  "neuro-dive",
+  "megacorp",
+  "cyber-ninja",
+  "brain-hack",
+  "nano-fog",
+  "datalink",
+  "cyberphobia",
+  "cyber-crime",
+  "mech-soldier",
+  "synth-pop",
+  "neuro-scrambler",
+  "cyber-drone",
+  "brain-interface"
+]
+const wordsCode = 
+[
+"useState()",
+"array[]",
+"x&&y",
+"forLoop",
+"statement",
+"function()",
+"variable",
+"object",
+"method",
+"parameter",
+"argument",
+"callback",
+"eventListener",
+"promise",
+"async/await",
+"try/catch",
+"module",
+"import",
+"export",
+"constructor",
+"this keyword",
+"prototype",
+"closure",
+"callback hell",
+"REST API",
+"JSON",
+"XMLHttpRequest",
+"fetch()",
+"axios",
+"middleware",
+"package manager",
+"npm",
+"yarn",
+"dependency",
+"devDependency",
+"package.json",
+"node.js",
+]
+const wordsLeft = [
+  "we",
+  "ad",
+  "as",
+  "aw",
+  "sea",
+  "swede",
+  "deed",
+  "seed",
+  "ewe",
+  "wade",
+  "wee",
+  "awe",
+  "wed",
+  "weed",
+  "ewe",
+  "awed",
+  "ease",
+  "added",
+  "dead",
+  "dede",
+  "see",
+  "seed",
+  "sad",
+  "ewe",
+  "awed",
+  "sea",
+  "sew",
+  "wade",
+  "wed",
+  "wad",
+  "aw",
+  "awed",
+  "deed",
+  "dead",
+  "saw",
+  "sew",
+  "see",
+  "weed",
+  "wed",
+  "wee",
+  "awe",
+  "seed",
+  "sew",
+  "we",
+  "wed"
+]
 
 const waveData = {
   1: [
@@ -197,22 +340,30 @@ const waveData = {
   ]
 }
 
-const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) => {
+const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty, wordList }) => {
   const [playerAction, setPlayerAction] = useState("cover")
+  const [lucyAction, setLucyAction] = useState("cover")
   const [mercs, setMercs] = useState([])
   const [drones, setDrones] = useState([])
   const [wave, setWave] = useState(0)
+  const [waveInterim, setWaveInterim] = useState(false)
 
   const [shooting, setShooting] = useState(false)
   const [ammo, setAmmo] = useState(6)
   const target = useRef(null)
   const [health, setHealth] = useState(100)
   const [shield, setShield] = useState(255)
-  const score = useRef(0)
-  const [showCompleteButton, setShowCompleteButton] = useState(false)
-
   const [sandevistan, setSandevistan] = useState(0)
   const [activatedSandevistan, setActivatedSandevistan] = useState(false)
+  
+  const [lucyShooting, setLucyShooting] = useState(false)
+  const [lucyHealth, setLucyHealth] = useState(100)
+  const [lucyShield, setLucyShield] = useState(255)
+  const [hack, setHack] = useState(0)
+  const [activatedHack, setActivatedHack] = useState(false)
+  
+  const score = useRef(0)
+  const [showCompleteButton, setShowCompleteButton] = useState(false)
 
   const [enemyLoop, setEnemyLoop] = useState(false)
   const shooters = useRef([])
@@ -227,6 +378,15 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
   const audioReload = useRef(null)
   const audioShieldHit = useRef(null)
   const audioKill = useRef(null)
+
+  const inputRef = useRef(null)
+  const words = wordList == 0 ? wordsCyber : wordList == 1 ? wordsCode : wordsLeft
+
+  // Input Ref
+  useEffect(() => {
+    if (inputRef.current == null) return
+    inputRef.current.focus()
+  }, )
 
   // Start Song
   useEffect(()=>{
@@ -251,8 +411,9 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
     const allDronesDead = drones.every(obj => obj.health < 1)
     const allMercsDead = mercs.every(obj => obj.health < 1)
 
-    if (allDronesDead && allMercsDead) {
+    if (allDronesDead && allMercsDead && waveInterim == false) {
       setTimeout(()=>setWave(wave + 1), 1000)
+      setWaveInterim(true)
       //console.log("New wave:", wave)
     }
 
@@ -262,8 +423,7 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
   const spawnWave = () => {
     const waves = waveData[level]
     //console.log(wave)
-    //console.log(waves)
-    //console.log("Spawning")
+    setWaveInterim(false)
 
     if (waves.length <= wave) {
       //console.log("Level complete")
@@ -273,6 +433,8 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
 
     setShield(255)
     setHealth(health + 10)
+    setLucyShield(255)
+    setLucyHealth(lucyHealth + 10)
 
     const droneAmount = waves[wave].drones
     const mercAmount = waves[wave].mercs
@@ -282,6 +444,9 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
       const name = Math.floor(Math.random() * 3)
       const top = Math.random() * 30
       const left = Math.random() * 80 + 5
+      const word = Math.floor(Math.random() * words.length)
+      //console.log(words[word])
+
       const tempDrone = {
         id: uuidv4(),
         name: name,
@@ -289,7 +454,8 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
         left: left+"%",
         width: 128,
         height: 128,
-        health: 100
+        health: 100,
+        word: words[word]
       }
       tempDrones.push(tempDrone)
     }
@@ -301,6 +467,7 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
       const top = Math.random() * 10 + 40
       let left = Math.random() * 85
       if (left < 50 && left > 30) left += 20
+      const word = Math.floor(Math.random() * words.length)
       const tempMerc = {
         id: uuidv4(),
         name: "m1",
@@ -309,7 +476,8 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
         width: 128,
         height: 256,
         health: 100,
-        action: "aim"
+        action: "aim",
+        word: words[word]
       }
       tempMercs.push(tempMerc)
     }
@@ -323,6 +491,17 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
     if (sandevistan < 0) setActivatedSandevistan(false)
   }, [sandevistan])
 
+  // Hack
+  useEffect(() => {
+    if (hack < 0) setActivatedHack(false)
+  }, [hack])
+  useEffect(() => {
+    if (activatedHack) {
+      setLucyShield(300)
+      setShield(300)
+    }
+  }, [activatedHack])
+
   // Enemy Taking Shot
   useEffect(() => {
     const timeoutCallback = () => {
@@ -333,7 +512,11 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
       } else {
         if (sandevistan < 1000) setSandevistan(prev => prev + 3)
       }
-
+      if (activatedHack) {
+        setHack(prev => prev - 12)
+      } else {
+        if (hack < 1000) setHack(prev => prev + 3)
+      }
 
       const aimFrames = difficulty == 1 ? 30 : difficulty == 0 ? 50 : 25
       const chanceThreshold = 0.01
@@ -352,6 +535,7 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
               const frameShot = obj.frame - 1
               if (frameShot < 1) {
                 shootAtPlayer()
+                shootAtLucy()
                 return null
               }
               return { ...obj, frame: frameShot}
@@ -383,6 +567,7 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
               const frameShot = obj.frame - 1
               if (frameShot < 1) {
                 shootAtPlayer()
+                shootAtLucy()
                 return null
               }
               return { ...obj, frame: frameShot}
@@ -496,7 +681,17 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
     return true
   }
 
+  const updateLucyAction = (newAction) => {
+    if (lucyAction == "hurt") return false
+    if (lucyAction == "die") return false
+
+    setLucyAction(newAction)
+
+    return true
+  }
+
   const shootAtPlayer = () => {
+    if (runners == 1) return
     if (playerAction == "hurt") return
     if (playerAction == "die") return
 
@@ -537,6 +732,47 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
     }, 600)
   }
 
+  const shootAtLucy = () => {
+    if (runners == 0) return
+    if (activatedHack) return
+    if (lucyAction == "hurt") return
+    if (lucyAction == "die") return
+
+    if (lucyAction == "cover" && lucyShield > 0) {
+      const dmg = difficulty == 1 ? 20 : difficulty == 0 ? 10 : 30
+      setLucyShield(prev => prev - dmg)
+      score.current -= 10
+      audioShieldHit.current.currentTime = 0
+      audioShieldHit.current.play()
+      return      
+    }
+
+    // Hit lucy
+    setLucyShooting(false)
+    score.current -= 40
+    audioPlayerHit.current.currentTime = 0
+    audioPlayerHit.current.play()
+
+    const dmg = difficulty == 1 ? 25 : difficulty == 0 ? 10 : 35
+    let newHealth = lucyHealth - dmg
+    if (newHealth < 0) {
+      // player dead
+      newHealth = 0
+      setLucyHealth(newHealth)
+      setLucyAction("die")
+      setMissionScore(score.current)
+      setTimeout(()=>{
+        setLevel(-1)
+      }, 3000)
+      return
+    }
+    setLucyHealth(newHealth)
+    setLucyAction("hurt")
+    setTimeout(()=>{
+      setLucyAction("cover")
+    }, 600)
+  }
+
   const mercAnim = (id, anim) => {
     setMercs(prevItems => prevItems.map(item => {
       if (item.id === id) {
@@ -547,6 +783,8 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
   }
 
   const handlePointerDown = () => {
+    if (runners == 1) return
+
     const actionAccepted = updatePlayerAction("shoot")
     if (actionAccepted) {
       setShooting(true)
@@ -554,10 +792,81 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
   }
 
   const handlePointerUp = () => {
+    if (runners == 1) return
+
     updatePlayerAction("cover")
     setShooting(false)
     setTimeout(setAmmo(10), 500)
   }
+
+  const typeTest = () => {
+    const inputValue = inputRef.current.value.toLowerCase().split(' ').join('')
+    if (inputValue == " ") return
+    //console.log(inputValue)
+
+    const droneMatch = drones.find(drone => drone.word.toLowerCase().split(' ').join('') == inputValue);
+    const mercMatch = mercs.find(merc => merc.word.toLowerCase().split(' ').join('') == inputValue);
+
+    if (droneMatch) {
+      const updatedDrones = drones.map(drone =>
+        drone.id === droneMatch.id ? { ...drone, health: 0, word: "-NA-" } : drone
+      )
+
+      setDrones(updatedDrones) 
+      score.current += 10
+      removeShooter(droneMatch.id)
+      audioEnemyHit.current.currentTime = 0
+      audioEnemyHit.current.play()
+
+      //console.log("match drone:", droneMatch.word)
+
+    } else if (mercMatch) {
+      const updatedMercs = mercs.map(merc =>
+        merc.id === mercMatch.id ? { ...merc, health: 0, action: "die", word: "-NA-" } : merc
+      )
+
+      setMercs(updatedMercs) 
+      score.current += 10
+      removeShooter(mercMatch.id)
+      audioEnemyHit.current.currentTime = 0
+      audioEnemyHit.current.play()
+    }
+
+    inputRef.current.value = ""
+  }
+
+  // Keyboard events
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.code === 'Space') {
+        const actionAccepted = updateLucyAction("shoot")
+        if (actionAccepted) setLucyShooting(true)
+
+        typeTest()        
+      }
+
+      if (event.code === "Enter" || event.code == "Tab") {
+        if (hack >= 1000) setActivatedHack(true)
+      }
+    }
+
+    const handleKeyUp = (event) => {
+      if (event.code === 'Space') {
+        setLucyShooting(false)
+        updateLucyAction("cover")
+        inputRef.current.value = ""
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [drones, mercs])
 
   const levelComplete = () => {
     setMissionScore(score.current)
@@ -583,7 +892,9 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
           data={drone}
           target={target}
           shooting={shooting}
+          lucyShooting={lucyShooting}
           shooters={shooters}
+          runners={runners}
         />
       ))}
 
@@ -593,11 +904,13 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
           data={merc}
           target={target}
           mercAnim={mercAnim}
+          lucyShooting={lucyShooting}
           shooters={shooters}
+          runners={runners}
         />
       ))}
 
-      <Player 
+      {runners != 1 && <Player 
         playerAction={playerAction} 
         health={health} 
         ammo={ammo} 
@@ -605,7 +918,20 @@ const Game = ({ level, setLevel, song, runners, setMissionScore, difficulty }) =
         sandevistan={sandevistan}
         activatedSandevistan={activatedSandevistan}
         setActivatedSandevistan={setActivatedSandevistan} 
-      />
+      /> }
+
+      {runners != 0 && <Lucy 
+        lucyAction={lucyAction} 
+        health={lucyHealth}
+        shield={lucyShield}
+        hack={hack}
+        activatedHack={activatedHack}
+        setActivatedHack={setActivatedHack}
+      /> }
+
+      {runners != 0 && 
+        <input className="lucyInput" ref={inputRef} type="text" />
+      }
 
       { showCompleteButton && <button
         style={{

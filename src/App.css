@@ -42,7 +42,7 @@
 
 .menu {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   padding: 40px;
 }
 
@@ -60,6 +60,17 @@ label {
 button {
   display: block;
   margin: 20px auto;
+  border: "4px solid #999999";
+}
+
+.lucyInput {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
+
+h5 {
+  margin-bottom: 0px;
 }
 
 

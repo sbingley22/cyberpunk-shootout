@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 
 
-const Merc = ({ data, target, mercAnim, shooters }) => {  
+const Merc = ({ data, target, lucyShooting, mercAnim, shooters, runners }) => {  
   const image = `./mercs/${data.action}-${data.name}.gif`
 
   const [animTimer, setAnimTimer] = useState(false)
@@ -22,7 +22,7 @@ const Merc = ({ data, target, mercAnim, shooters }) => {
       //console.log(data.action)
       if (data.action == "die") {
         setVisible(false)
-        console.log("setting visible")
+        //console.log("setting visible")
       }
 
       mercAnim(data.id, "aim")
@@ -80,6 +80,24 @@ const Merc = ({ data, target, mercAnim, shooters }) => {
           borderRadius: 50
         }}
       /> }
+
+      { runners != 0 && lucyShooting && <p
+        style={{
+          position: "absolute",
+          left: data.left, 
+          top: data.top,
+          marginTop: "100px",
+          color: "white",
+          backgroundColor: "#111111",
+          padding: "5px",
+          borderRadius: 10,
+          border: "solid 2px grey",
+          zIndex: 99,
+          display: data.health > 0 ? "auto" : "none"
+        }}
+      >
+        {data.health > 0 && data.word}
+      </p> }
 
       <p
         style={{
