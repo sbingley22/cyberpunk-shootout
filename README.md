@@ -10,3 +10,5 @@ Click and hold to shoot at enemies. Enemies flash when they are about to hit you
 
 Lucy Kushinada:
 Hold space to see kill words. Type them whilst behind cover then press spacebar to eliminate enemy.
+
+![screenshot](./screenshot.png)

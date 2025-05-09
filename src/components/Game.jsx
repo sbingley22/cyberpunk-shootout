@@ -952,14 +952,14 @@ const Game = ({ isMobile, level, setLevel, song, runners, setMissionScore, diffi
 
       {runners != 0 && 
         <div className="lucyInput">
-          <button
+          {isMobile && <button
             onPointerDown={lucyPeek}
             onPointerUp={lucyCover}
             style={{
               padding: "10px 70px",
               marginBottom: 0
             }}
-          >Peek</button>
+          >Peek</button>}
           <input ref={inputRef} type="text" />
         </div>
       }
